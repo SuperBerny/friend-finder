@@ -41,4 +41,6 @@ var profiles = [
          
       ]
    }
-]
+];
+
+module.exports = {profiles};
