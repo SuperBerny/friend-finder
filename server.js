@@ -4,6 +4,9 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 
+var friends = require('./app/data/friends.js');
+
+console.log(friends.profiles);
 //Sets up an instance for Express app
 //==========================================================
 var app = express();
@@ -85,7 +88,7 @@ app.get("/guardians", function(req, res){
    res.json(profiles);
 });
 
-
+//Post into Profiles array after answering all 
 
 //Start server and begins listening
 app.listen(PORT, function(req, res){

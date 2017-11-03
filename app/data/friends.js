@@ -43,4 +43,4 @@ var profiles = [
    }
 ];
 
-module.exports = {profiles};
+module.exports = profiles;
