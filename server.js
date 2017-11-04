@@ -13,7 +13,7 @@ var app = express();
 
 //Port used for localhost
 //==========================================================
-var PORT = process.env.port || 3000;
+var PORT = process.env.PORT || 3000;
 
 //Sets up Express app to handle data parsin
 //==========================================================
