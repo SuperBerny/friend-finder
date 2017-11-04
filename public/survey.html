@@ -70,8 +70,8 @@ crossorigin="anonymous">
 			<option value="4">4</option>
 			<option value="5">5 (Strong Agree)</option>
 		</select>
-	<h3>It is often difficult for you to relate to other people’s feelings</h3>
-	<h4>Add question</h4>
+	<h3>Question 6</h3>
+	<h4>It is often difficult for you to relate to other people’s feelings</h4>
 		<select id="q6" class="select">
 			<option value="1">1 (Strongly Disagree)</option>
 			<option value="2">2</option>
@@ -124,7 +124,7 @@ crossorigin="anonymous">
 <hr>
 	<footer class="footer">
 		<div class="container">
-			<p><a href="/guardians">Meet the Guardians</a></p>
+			<p><a href="/api/friends">Meet the Guardians</a></p>
 		</div>
 	</footer>	
 
@@ -142,7 +142,7 @@ crossorigin="anonymous">
 				 </div>
 				 <div class="modal-body">
 					<h2 id="matchName"></h2>
-					<img id="matchImg" src="https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/6/005/064/1bd/3435aa3.jpg" alt="">
+					<img id="matchImg" src="" alt="">
 				 </div>
 				 <div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -156,57 +156,80 @@ crossorigin="anonymous">
 <script>
 	$("#submit").on("click", function(){
 
-    	// Form validation
-    	function validateForm() {
-		  var isValid = true;
-		  $('.form-control').each(function() {
-		    if ( $(this).val() === '' )
-		        isValid = false;
-		  });
-
-		  $('.select').each(function() {
-
-		  	if( $(this).val() === "")
-		  		isValid = false
-		  })
-		  return isValid;
+		$('#submit').on("click", function(){
+		//check to make sure the form is filled out
+		var validEntry;
+		if($("#name").val().trim() === ''){
+			alert('Please enter a name');
 		}
-
-		// If all required fields are filled
-		if (validateForm() == true)
-		{
-			// Create an object for the user's data
-	    	var userData = {
-	    		name: $("#name").val(),
-	    		photo: $("#photo").val(),
-	    		scores: [$("#q1").val(), $("#q2").val(), $("#q3").val(), $("#q4").val(), $("#q5").val(), $("#q6").val(), $("#q7").val(), $("#q8").val(), $("#q9").val(), $("#q10").val(), ]
-	    	}
-
-
-	    	// Grab the URL of the website
-	    	var currentURL = window.location.origin;
-
-	    	// AJAX post the data to the friends API. 
-	    	$.post(currentURL + "/guardians", userData, function(data){
-
-	    		// Grab the result from the AJAX post so that the best match's name and photo are displayed.
-	    		$("#matchName").text(data.name);
-	    		$('#matchImg').attr("src", data.photo);
-
-		    	// Show the modal with the best match 
-		    	$("#resultsModal").modal('toggle');
-
-	    	});
+		else if($("#photo").val().trim() === ''){
+			alert('Please enter a link to photo');
 		}
-		else
-		{
-			alert("Please fill out all fields before submitting!");
+		else{
+			//empty array to hold the value from the survey questions
+			var answerArray = [];
+			//loop to push the answers from survey to the array (NEED TO UPDATE i< AS QUESTIONS ARE ADDED)
+			for(i=1; i<11; i++){
+				answerArray.push(parseInt($('#q' + i).val()));
+			}
+			//creating an object to hold the newly entered information
+			var newFriend = 
+			{
+				name: $("#name").val().trim(),
+				photo: $("#photo").val().trim(),
+				scores: answerArray
+			};
+			//records the current location
+			var currentURL = window.location.origin;
+			//add the newly entered information to the friend array
+			$.post(currentURL + "/api/friends", newFriend,
+		    function(data){});
+			//access our array of potential friends so we can analyze it for the best match
+			$.ajax({url: currentURL + "/api/friends", method: "GET"}).done(function(res){
+					
+				var bestFriend;
+				var currentBest = 100;
+				var differenceArray = [];
+				//loops through all friends with the exception of the one just created
+				for(i=0; i < res.length - 1; i++){
+					//compares the values from the survey questions and pushes the absolute value of the differences to the difference array
+					for(j=0; j<10; j++){
+						var currentDifference = newFriend.scores[j] - res[i].scores[j];
+						differenceArray.push(Math.abs(currentDifference));
+					}
+					//adds the values in the array to give a single value that represents the difference between a potential friend and the current entry
+					var difference = differenceArray.reduce(add, 0);
+					//if the difference is less than any of the previous comparisons, push the current profile to the best match position
+					if(difference < currentBest){
+						bestFriend = res[i];
+						currentBest = difference;
+						differenceArray = [];
+					}
+					//or just move on
+					else{
+						differenceArray =[];
+					}
+					
+				}
+				//set up the display for the modal
+				var friendName = '<h4>' + bestFriend.name + '<h4>';
+				var friendPic = '<img width="300px" src=' + bestFriend.photo + '>';
+				//show the modal
+				$('#friend-modal').modal('show');
+				$('#friend-modal h4').html(friendName);
+				$('.modal-body').html(friendPic);
+				//clear the entries
+				$('#survey')[0].reset();
+				
+			});
 		}
-    	
-    	return false;
-    });
-
-
+return false;
+});
+function add(a, b){
+	return a+b;
+};
+		
+ });
 
 </script>
 </body>
