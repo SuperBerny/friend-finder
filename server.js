@@ -13,7 +13,7 @@ var app = express();
 
 //Port used for localhost
 //==========================================================
-var PORT = 3000;
+var port = process.env.PORT || 3000;
 
 //Sets up Express app to handle data parsin
 //==========================================================
@@ -43,6 +43,6 @@ app.get("/api/friends", function(req, res){
 //Post into Profiles array after answering all 
 
 //Start server and begins listening
-app.listen(PORT, function(req, res){
+app.listen(process.env.PORT || 3000, function(req, res){
    console.log("App listening on PORT " + PORT);
 });
